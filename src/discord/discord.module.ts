@@ -1,16 +1,17 @@
-import { DynamicModule, Global, Module } from '@nestjs/common';
+import { DynamicModule, Global, Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { DiscordCommandService } from './commands/discord-command.service';
+import { DISCORD_CLIENT, DISCORD_REST_CLIENT } from './constants';
 import { DiscordController } from './discord.controller';
 import { DiscordService } from './discord.service';
 import { discordConnectionFactory } from './factory/discord-connect-factory';
-
-export const DISCORD_CLIENT = Symbol('DISCORD_CLIENT');
+import { discordRestConnectionFactory } from './factory/discord-rest-factory';
 
 @Global()
 @Module({
 	controllers: [DiscordController],
-	providers: [DiscordService],
+	providers: [DiscordService, DiscordCommandService],
 })
 export class DiscordModule {
 	static forRootAsync(): DynamicModule {
@@ -23,8 +24,15 @@ export class DiscordModule {
 					inject: [ConfigService],
 					useFactory: discordConnectionFactory,
 				},
+				{
+					provide: DISCORD_REST_CLIENT,
+					inject: [ConfigService],
+					useFactory: discordRestConnectionFactory,
+				},
 			],
 			exports: [DISCORD_CLIENT],
 		};
 	}
+
+
 }

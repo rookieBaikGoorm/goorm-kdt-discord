@@ -1,9 +1,9 @@
 import { InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { Client, GatewayIntentBits } from 'discord.js';
+import { REST as DiscordRestClient } from 'discord.js';
 
-export const discordConnectionFactory = async (
+export const discordRestConnectionFactory = async (
 	configService: ConfigService,
 ) => {
 	const DISCORD_TOKEN = configService.get<string>('DISCORD_TOKEN');
@@ -15,16 +15,8 @@ export const discordConnectionFactory = async (
 	}
 
 	try {
-		const client = new Client({
-			intents: [
-				GatewayIntentBits.Guilds,
-				GatewayIntentBits.GuildEmojisAndStickers,
-				GatewayIntentBits.GuildScheduledEvents,
-				GatewayIntentBits.GuildMessages,
-			],
-		});
-		await client.login(DISCORD_TOKEN);
-		return client;
+		const restClient = new DiscordRestClient().setToken(DISCORD_TOKEN);
+		return restClient;
 	} catch (error) {
 		throw new InternalServerErrorException(
 			error,

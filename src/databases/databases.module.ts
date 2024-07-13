@@ -7,6 +7,7 @@ import { connectMongoFactory } from './factory/connect-mongo-factory';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
+      connectionName: 'kdt-discord',
       imports: [ConfigModule],
       useFactory: connectMongoFactory,
       inject: [ConfigService],
