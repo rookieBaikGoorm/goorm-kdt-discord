@@ -5,12 +5,12 @@ import scheduleCommand from './schedule';
 @Injectable()
 export class DiscordCommandService {
 	constructor() {}
-    
-    private slashCommandList = [scheduleCommand];
+
+	private slashCommandList = [scheduleCommand];
 
 	public getRegisteredSlashCommands() {
-        return this.slashCommandList.map((slashCommand) =>
-            slashCommand.command.toJSON(),
-        );     
+		return this.slashCommandList.map((slashCommand) =>
+			slashCommand.command.toJSON(),
+		);
 	}
 }

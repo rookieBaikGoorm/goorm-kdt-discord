@@ -38,9 +38,11 @@ const scheduleCommand: SlashCommand = {
 							'예약 메세지를 출력할 시간대를 설정합니다.',
 						)
 						.addChoices(
-							
 							{ name: 'EVERY_DAY_AT_1AM', value: '0 01 * * *' },
-							{ name: 'EVERY_DAY_AT_MIDNIGHT', value: '0 0 * * *' },
+							{
+								name: 'EVERY_DAY_AT_MIDNIGHT',
+								value: '0 0 * * *',
+							},
 							{ name: 'EVERY_WEEKDAY', value: '0 0 * * 1-5' },
 						)
 						.setRequired(true),

@@ -1,4 +1,7 @@
-import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from '@discordjs/builders';
+import {
+	SlashCommandBuilder,
+	SlashCommandSubcommandsOnlyBuilder,
+} from '@discordjs/builders';
 import {
 	AutocompleteInteraction,
 	CacheType,

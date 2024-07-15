@@ -33,6 +33,4 @@ export class DiscordModule {
 			exports: [DISCORD_CLIENT],
 		};
 	}
-
-
 }

@@ -1,3 +1,4 @@
+import { RequireVariableException } from '#/common/exceptions/require-variable-exception';
 import { InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
@@ -9,9 +10,7 @@ export const discordRestConnectionFactory = async (
 	const DISCORD_TOKEN = configService.get<string>('DISCORD_TOKEN');
 
 	if (!DISCORD_TOKEN) {
-		throw new InternalServerErrorException(
-			'DISCORD_TOKEN 이 세팅되지 않았습니다.',
-		);
+		throw new RequireVariableException('DISCORD_TOKEN');
 	}
 
 	try {
