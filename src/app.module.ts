@@ -2,10 +2,9 @@ import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 
+import { DiscordCommandModule } from '#/command/discord-command.module';
+import { DatabasesModule } from '#/databases/databases.module';
 import { DiscordModule } from '#/discord/discord.module';
-
-import { DiscordCommandModule } from './commands/discord-command.module';
-import { DatabasesModule } from './databases/databases.module';
 
 @Module({
 	imports: [

@@ -6,7 +6,7 @@ import {
 } from 'discord.js';
 import { Client } from 'discord.js';
 
-import { Command } from '#/commands/decorators/discord-command';
+import { Command } from '#/command/decorators/discord-command';
 import type { SlashCommand } from '#/common/types/discord-command';
 import { ScheduledMessageRepository } from '#/databases/repository/scheduled-message.repository';
 
