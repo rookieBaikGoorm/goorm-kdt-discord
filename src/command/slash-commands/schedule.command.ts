@@ -9,6 +9,7 @@ import { Client } from 'discord.js';
 import { Command } from '#/command/decorators/discord-command';
 import type { SlashCommand } from '#/common/types/discord-command';
 import { ScheduledMessageRepository } from '#/databases/repository/scheduled-message.repository';
+import { generateSuccessScheduleMessageEmbed } from '#/messages/embed/schedule-message';
 
 @Command()
 export class ScheduleCommand implements SlashCommand {
@@ -81,8 +82,14 @@ export class ScheduleCommand implements SlashCommand {
 					registeredUserId: registeredUser.id,
 				});
 
+				const embed = generateSuccessScheduleMessageEmbed(
+					message,
+					registeredUser.displayName,
+				);
+
 				await interaction.editReply({
-					content: '성공적으로 예약 메세지가 등록되었습니다.',
+					embeds: [embed],
+					
 				});
 				break;
 			}
