@@ -6,13 +6,17 @@ import {
 } from 'discord.js';
 import { Client } from 'discord.js';
 
+import { Command } from '#/commands/decorators/discord-command';
 import type { SlashCommand } from '#/common/types/discord-command';
-
-import { Command } from '../decorators/discord-command';
+import { ScheduledMessageRepository } from '#/databases/repository/scheduled-message.repository';
 
 @Command()
 export class ScheduleCommand implements SlashCommand {
-	public builder = new SlashCommandBuilder()
+	constructor(
+		private readonly scheduledRepository: ScheduledMessageRepository,
+	) {}
+
+	builder = new SlashCommandBuilder()
 		.setName('schedule')
 		.setDescription(
 			'정해진 시간에 특정 채널에 예약 메세지를 실행하도록 합니다.',
@@ -63,10 +67,22 @@ export class ScheduleCommand implements SlashCommand {
 				const channel: TextChannel =
 					interaction.options.getChannel('channel');
 				const cronJob = interaction.options.getString('cron_job');
+				const registeredUser = interaction.user;
 
 				await interaction.reply({
-					content: '성공적으로 예약 메세지가 등록되었습니다.',
+					content: '메세지를 등록하는 중입니다...',
 					ephemeral: true,
+				});
+
+				await this.scheduledRepository.createMessage({
+					message,
+					channelId: channel.id,
+					cronJob,
+					registeredUserId: registeredUser.id,
+				});
+
+				await interaction.editReply({
+					content: '성공적으로 예약 메세지가 등록되었습니다.',
 				});
 				break;
 			}

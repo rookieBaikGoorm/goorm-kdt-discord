@@ -10,6 +10,9 @@ export class ScheduledMessage {
 
     @Prop({ type: String })
     channelId: string;
+
+    @Prop({ type: String })
+    message: string;
 }
 
 export const ScheduledMessageSchema = SchemaFactory.createForClass(ScheduledMessage);

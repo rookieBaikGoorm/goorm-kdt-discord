@@ -4,6 +4,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 
 import { DiscordModule } from '#/discord/discord.module';
 
+import { DiscordCommandModule } from './commands/discord-command.module';
 import { DatabasesModule } from './databases/databases.module';
 
 @Module({
@@ -12,7 +13,9 @@ import { DatabasesModule } from './databases/databases.module';
 			isGlobal: true,
 			envFilePath: `./src/common/configs/.env.${process.env.NODE_ENV}`,
 		}),
+		DatabasesModule,
 		DiscordModule.forRootAsync(),
+		DiscordCommandModule,
 		ScheduleModule.forRoot(),
 		// DatabasesModule,
 	],

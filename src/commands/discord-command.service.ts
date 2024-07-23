@@ -1,20 +1,12 @@
 import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import {
-	Client,
-	type ClientEvents,
-	REST as DiscordRestClient,
-	RESTPostAPIChatInputApplicationCommandsJSONBody,
-	Routes,
-} from 'discord.js';
+import { type ClientEvents, Routes } from 'discord.js';
 
 import { SlashCommand } from '#/common/types/discord-command';
+import { DiscordClientService } from '#/discord/discord.service';
 
-import { InjectDiscordClient } from '../decorators/inject-discord-client';
-import { InjectDiscordRestClient } from '../decorators/inject-discord-rest-client';
-
-import { ScheduleCommand } from './schedule.command';
+import { ScheduleCommand } from './slash-commands/schedule.command';
 
 @Injectable()
 export class DiscordCommandService implements OnApplicationBootstrap {
@@ -22,12 +14,9 @@ export class DiscordCommandService implements OnApplicationBootstrap {
 	private APPLICATION_ID: string;
 
 	constructor(
-		@InjectDiscordClient() private readonly discordClient: Client,
-		@InjectDiscordRestClient()
-		private readonly discordRestClient: DiscordRestClient,
+		private readonly discordClientService: DiscordClientService,
 		private readonly configService: ConfigService,
-
-		// TODO : 명령어 등록을 자동화하는 방안을 
+		private scheduledCommand: ScheduleCommand,
 	) {
 		this.GUILD_ID = this.configService.get<string>('GUILD_ID');
 		this.APPLICATION_ID = this.configService.get<string>('APPLICATION_ID');
@@ -40,25 +29,24 @@ export class DiscordCommandService implements OnApplicationBootstrap {
 	}
 
 	// TODO : ExplorerService 로 Command 를 찾도록 수정 필요
-	private commandList = [new ScheduleCommand()];
+	private commandList = [this.scheduledCommand];
 
 	private async registerGuildCommand() {
-		const registeredSlashCommands: RESTPostAPIChatInputApplicationCommandsJSONBody[] =
-			[];
-
-		this.commandList.forEach((command) => {
-			registeredSlashCommands.push(command.builder.toJSON());
-			this.listenCommand(command);
+		const registeredCommandJson = this.commandList.map((command) => {
+			this.addListenerToCommand(command);
+			return command.builder.toJSON();
 		});
 
-		await this.discordRestClient.put(
+		const discordRestClient = this.discordClientService.getRestClient();
+		await discordRestClient.put(
 			Routes.applicationGuildCommands(this.APPLICATION_ID, this.GUILD_ID),
-			{ body: registeredSlashCommands },
+			{ body: registeredCommandJson },
 		);
 	}
 
-	private async listenCommand(command: SlashCommand) {
-		this.discordClient.on(
+	private async addListenerToCommand(command: SlashCommand) {
+		const discordClient = this.discordClientService.getClient();
+		discordClient.on(
 			this.event,
 			async (...eventArgs: ClientEvents['interactionCreate']) => {
 				const [interaction] = eventArgs;
@@ -69,7 +57,7 @@ export class DiscordCommandService implements OnApplicationBootstrap {
 					return;
 
 				try {
-					await command.handler(this.discordClient, interaction);
+					await command.handler(discordClient, interaction);
 				} catch (error) {
 					if (interaction.replied || interaction.deferred) {
 						await interaction.followUp({

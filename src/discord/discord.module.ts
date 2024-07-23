@@ -4,8 +4,6 @@ import { DiscoveryModule } from '@nestjs/core';
 
 import { DatabasesModule } from '#/databases/databases.module';
 
-import { DiscordCommandService } from './commands/discord-command.service';
-import { ScheduleCommand } from './commands/schedule.command';
 import { DISCORD_CLIENT, DISCORD_REST_CLIENT } from './constants';
 import { DiscordClientService } from './discord.service';
 import { discordConnectionFactory } from './factory/discord-connect-factory';
@@ -32,10 +30,12 @@ export class DiscordModule {
 					useFactory: discordRestConnectionFactory,
 				},
 				DiscordClientService,
-				DiscordCommandService,
-				ScheduleCommand,
 			],
-			exports: [DISCORD_CLIENT],
+			exports: [
+				DISCORD_CLIENT,
+				DISCORD_REST_CLIENT,
+				DiscordClientService,
+			],
 		};
 	}
 }
