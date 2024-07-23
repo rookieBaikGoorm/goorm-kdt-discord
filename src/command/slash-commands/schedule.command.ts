@@ -85,11 +85,12 @@ export class ScheduleCommand implements SlashCommand {
 				const embed = generateSuccessScheduleMessageEmbed(
 					message,
 					registeredUser.displayName,
+					channel.name,
 				);
 
 				await interaction.editReply({
 					embeds: [embed],
-					
+					content: '',
 				});
 				break;
 			}
