@@ -1,16 +1,23 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { ChatInputCommandInteraction } from 'discord.js';
+import {
+	ChatInputCommandInteraction,
+	PermissionFlagsBits,
+	TextChannel,
+} from 'discord.js';
 import { Client } from 'discord.js';
 
 import type { SlashCommand } from '#/common/types/discord-command';
 
-const scheduleCommand: SlashCommand = {
-	command: new SlashCommandBuilder()
+import { Command } from '../decorators/discord-command';
+
+@Command()
+export class ScheduleCommand implements SlashCommand {
+	public builder = new SlashCommandBuilder()
 		.setName('schedule')
 		.setDescription(
 			'정해진 시간에 특정 채널에 예약 메세지를 실행하도록 합니다.',
 		)
-		.setDefaultMemberPermissions(8)
+		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
 		.addSubcommand((subCommand) =>
 			subCommand
 				.setName('set')
@@ -47,10 +54,29 @@ const scheduleCommand: SlashCommand = {
 						)
 						.setRequired(true),
 				),
-		),
-	async execute(client: Client, interaction: ChatInputCommandInteraction) {
-		await interaction.reply('Pong!');
-	},
-};
+		);
+	async handler(client: Client, interaction: ChatInputCommandInteraction) {
+		const subCommand = interaction.options.getSubcommand();
+		switch (subCommand) {
+			case 'set': {
+				const message = interaction.options.getString('message');
+				const channel: TextChannel =
+					interaction.options.getChannel('channel');
+				const cronJob = interaction.options.getString('cron_job');
 
-export default scheduleCommand;
+				await interaction.reply({
+					content: '성공적으로 예약 메세지가 등록되었습니다.',
+					ephemeral: true,
+				});
+				break;
+			}
+
+			default: {
+				await interaction.reply({
+					content: '유효하지 않은 명령어입니다.',
+					ephemeral: true,
+				});
+			}
+		}
+	}
+}

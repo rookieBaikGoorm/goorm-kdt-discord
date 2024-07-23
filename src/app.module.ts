@@ -14,7 +14,7 @@ import { DatabasesModule } from './databases/databases.module';
 		}),
 		DiscordModule.forRootAsync(),
 		ScheduleModule.forRoot(),
-		DatabasesModule,
+		// DatabasesModule,
 	],
 	providers: [Logger],
 })

@@ -13,8 +13,8 @@ import {
 } from 'discord.js';
 
 export interface SlashCommand {
-	command: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder;
-	execute: (client: Client, interaction: ChatInputCommandInteraction) => void;
+	builder: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder;
+	handler: (client: Client, interaction: ChatInputCommandInteraction) => Promise<void>;
 	autocomplete?: (interaction: AutocompleteInteraction) => void;
 	modal?: (interaction: ModalSubmitInteraction<CacheType>) => void;
 	cooldown?: number;
@@ -22,7 +22,7 @@ export interface SlashCommand {
 
 export interface Command {
 	name: string;
-	execute: (client: Client, message: Message, args: Array<string>) => void;
+	handler: (client: Client, message: Message, args: Array<string>) => void;
 	permissions: Array<PermissionResolvable>;
 	aliases: Array<string>;
 	cooldown?: number;

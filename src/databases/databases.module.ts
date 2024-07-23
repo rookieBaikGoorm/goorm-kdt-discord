@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { connectMongoFactory } from './factory/connect-mongo-factory';
+import { ScheduledMessageSchema } from './schema/scheduled-message.schema';
 
 @Global()
 @Module({
@@ -13,6 +14,9 @@ import { connectMongoFactory } from './factory/connect-mongo-factory';
 			useFactory: connectMongoFactory,
 			inject: [ConfigService],
 		}),
+		MongooseModule.forFeature([
+			{ name: 'ScheduledMessage', schema: ScheduledMessageSchema },
+		]),
 	],
 })
 export class DatabasesModule {}
