@@ -19,10 +19,7 @@ export class DiscordCommandExplorerService {
 		const commandHandlerList = this.searchHandler(instance);
 		this.discordCommandService.registerGuildCommand(instance);
 		commandHandlerList.forEach((handler) => {
-			this.discordCommandService.addListenerToCommand(
-				instance,
-				handler,
-			);
+			this.discordCommandService.addListenerToCommand(instance, handler);
 		});
 	}
 
@@ -38,13 +35,13 @@ export class DiscordCommandExplorerService {
 					methodName,
 				);
 
-				if (!metadata) return;
-				const handler = this.externalContextCreator.create(
-					instance,
-					instance[methodName],
-					methodName,
-				);
-				return handler;
+				return metadata
+					? this.externalContextCreator.create(
+							instance,
+							instance[methodName],
+							methodName,
+						)
+					: undefined;
 			})
 			.filter(Boolean);
 	}

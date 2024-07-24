@@ -27,6 +27,7 @@ export class DiscordCommandService {
 
 	async registerGuildCommand(command: SlashCommand) {
 		const discordRestClient = this.discordClientService.getRestClient();
+		console.log(command.builder.toJSON().options[0]);
 		await discordRestClient.put(
 			Routes.applicationGuildCommands(this.APPLICATION_ID, this.GUILD_ID),
 			{ body: [command.builder.toJSON()] },
@@ -51,7 +52,6 @@ export class DiscordCommandService {
 				try {
 					await handler(discordClient, interaction);
 				} catch (error) {
-					console.log(error);
 					const isMessageAlreadySend =
 						interaction.replied || interaction.deferred;
 
@@ -61,7 +61,7 @@ export class DiscordCommandService {
 					};
 
 					isMessageAlreadySend
-						? await interaction.followUp(failedMessage)
+						? await interaction.editReply(failedMessage)
 						: await interaction.reply(failedMessage);
 				}
 			},

@@ -1,5 +1,5 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import { DiscoveryService, MetadataScanner } from '@nestjs/core';
+import { DiscoveryService } from '@nestjs/core';
 import type { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 import { DiscordCommandExplorerService } from '#/command/command-explorer.service';
@@ -9,7 +9,6 @@ export class ExploreService implements OnModuleInit {
 	constructor(
 		private readonly discoveryService: DiscoveryService,
 		private readonly discordCommandExplorerService: DiscordCommandExplorerService,
-		private readonly metadataScanner: MetadataScanner,
 	) {}
 
 	private classExploreService = [this.discordCommandExplorerService];
@@ -17,7 +16,7 @@ export class ExploreService implements OnModuleInit {
 	async onModuleInit(): Promise<void> {
 		const providers = this.discoveryService.getProviders();
 		const controllers = this.discoveryService.getControllers();
-		await this.exploreDecorators([...providers, ...controllers]);
+		await this.explore([...providers, ...controllers]);
 	}
 
 	private isObject(instance: unknown) {
@@ -26,7 +25,7 @@ export class ExploreService implements OnModuleInit {
 			: typeof instance === 'function';
 	}
 
-	private async exploreDecorators(instances: InstanceWrapper[]) {
+	private async explore(instances: InstanceWrapper[]) {
 		instances
 			.filter((wrapper) => wrapper.isDependencyTreeStatic())
 			.filter(
