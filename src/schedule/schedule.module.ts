@@ -8,5 +8,6 @@ import { RegisterScheduleService } from './schedule.service';
 @Module({
 	imports: [DatabasesModule, DiscordModule],
 	providers: [RegisterScheduleService],
+	exports: [RegisterScheduleService],
 })
 export class RegisterScheduleModule {}

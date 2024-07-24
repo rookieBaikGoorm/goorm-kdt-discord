@@ -7,15 +7,17 @@ import {
 import { Client } from 'discord.js';
 
 import { Command } from '#/command/decorators/discord-command';
-import type { SlashCommand } from '#/common/types/discord-command';
+import { SlashCommand } from '#/common/types/discord-command';
 import { ScheduledMessageRepository } from '#/databases/repository/scheduled-message.repository';
-import { generateSuccessScheduleMessageEmbed } from '#/messages/embed/schedule-message';
+import { generateRegisteredScheduleMessageEmbed, generateSuccessScheduleMessageEmbed } from '#/messages/embed/schedule-message';
+import { RegisterScheduleService } from '#/schedule/schedule.service';
 
 import { CommandHandler } from '../decorators/discord-command-handler';
 
 @Command()
 export class ScheduleCommand implements SlashCommand {
 	constructor(
+		private readonly registerScheduleService: RegisterScheduleService,
 		private readonly scheduledRepository: ScheduledMessageRepository,
 	) {}
 
@@ -82,42 +84,91 @@ export class ScheduleCommand implements SlashCommand {
 						.setMaxValue(59)
 						.setRequired(true),
 				),
+		)
+		.addSubcommand((subCommand) =>
+			subCommand
+				.setName('delete')
+				.setDescription('등록한 예약 메세지를 삭제합니다.')
+				.addStringOption((option) =>
+					option
+						.setName('id')
+						.setDescription(
+							'삭제하고자 하는 예약 메세지 ID 를 입력해주세요.',
+						)
+						.setRequired(true),
+				),
+		)
+		.addSubcommand((subCommand) =>
+			subCommand
+				.setName('list')
+				.setDescription('등록한 예약 메세지를 열람합니다.')
 		);
+
+	private async createSchedule(interaction: ChatInputCommandInteraction) {
+		const message = interaction.options.getString('message');
+		const channel: TextChannel = interaction.options.getChannel('channel');
+		const hour = interaction.options.getString('hour');
+		const minute = interaction.options.getString('minute');
+		const registeredUser = interaction.user;
+
+		await interaction.reply({
+			content: '메세지를 등록하는 중입니다...',
+			ephemeral: true,
+		});
+
+		await this.scheduledRepository.createMessage({
+			message,
+			channelId: channel.id,
+			cronJob: `${minute} ${hour} * * ${1}`,
+			registeredUserId: registeredUser.id,
+		});
+
+		const embed = generateSuccessScheduleMessageEmbed(
+			message,
+			registeredUser.displayName,
+			channel.name,
+		);
+
+		await interaction.editReply({
+			embeds: [embed],
+			content: '',
+		});
+	}
+
+	private async deleteSchedule(interaction: ChatInputCommandInteraction) {
+		const jobId = interaction.options.getString('id');
+		await this.registerScheduleService.deleteScheduleMessage(jobId);
+		await this.scheduledRepository.deleteMessage(jobId);
+	}
+
+	private async listSchedule(interaction: ChatInputCommandInteraction) {
+		const scheduledMessageList =
+			await this.scheduledRepository.getAllMessage();
+		const embed = generateRegisteredScheduleMessageEmbed(scheduledMessageList);
+
+		await interaction.reply({
+			embeds: [embed],
+			content: '',
+		});
+	
+	}
 
 	@CommandHandler()
 	async handler(_: Client, interaction: ChatInputCommandInteraction) {
 		const subCommand = interaction.options.getSubcommand();
 		switch (subCommand) {
 			case 'set': {
-				const message = interaction.options.getString('message');
-				const channel: TextChannel =
-					interaction.options.getChannel('channel');
-				const hour = interaction.options.getString('hour');
-				const minute = interaction.options.getString('minute');
-				const registeredUser = interaction.user;
+				await this.createSchedule(interaction);
+				break;
+			}
 
-				await interaction.reply({
-					content: '메세지를 등록하는 중입니다...',
-					ephemeral: true,
-				});
+			case 'delete': {
+				await this.deleteSchedule(interaction);
+				break;
+			}
 
-				await this.scheduledRepository.createMessage({
-					message,
-					channelId: channel.id,
-					cronJob: `${minute} ${hour} * * ${1}`,
-					registeredUserId: registeredUser.id,
-				});
-
-				const embed = generateSuccessScheduleMessageEmbed(
-					message,
-					registeredUser.displayName,
-					channel.name,
-				);
-
-				await interaction.editReply({
-					embeds: [embed],
-					content: '',
-				});
+			case 'list': {
+				await this.listSchedule(interaction);
 				break;
 			}
 
@@ -130,5 +181,5 @@ export class ScheduleCommand implements SlashCommand {
 		}
 	}
 
-	private create
+	private create;
 }

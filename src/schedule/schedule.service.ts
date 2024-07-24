@@ -5,6 +5,7 @@ import { CronJob } from 'cron';
 import { ChannelType } from 'discord.js';
 
 import { ScheduledMessageRepository } from '#/databases/repository/scheduled-message.repository';
+import { ScheduledMessageDocument } from '#/databases/schema/scheduled-message.schema';
 import { DiscordClientService } from '#/discord/discord.service';
 
 @Injectable()
@@ -19,26 +20,26 @@ export class RegisterScheduleService implements OnModuleInit {
 		const scheduledMessageList =
 			await this.scheduledRepository.getAllMessage();
 		scheduledMessageList.forEach((scheduledMessage) => {
-			this.registerScheduleMessage(
-				scheduledMessage._id.toString(),
-				scheduledMessage.channelId,
-				scheduledMessage.cronJob,
-				scheduledMessage.message,
-			);
+			this.registerScheduleMessage(scheduledMessage);
 		});
 	}
 
 	private async registerScheduleMessage(
-		id: string,
-		channelId: string,
-		cronJob: string,
-		message: string,
+		scheduledMessage: ScheduledMessageDocument,
 	) {
 		const discordClient = this.discordClientService.getClient();
-        const job = new CronJob(cronJob, () => {
-            const channel = discordClient.channels.cache.get(channelId);
-            if (channel.type === ChannelType.GuildText) channel.send(message);
-        });
-        this.schedulerRegistry.addCronJob(id, job);
+		const cronJobId = scheduledMessage._id.toHexString();
+		const job = new CronJob(scheduledMessage.cronJob, () => {
+			const channel = discordClient.channels.cache.get(
+				scheduledMessage.channelId,
+			);
+			if (channel.type === ChannelType.GuildText)
+				channel.send(scheduledMessage.message);
+		});
+		this.schedulerRegistry.addCronJob(cronJobId, job);
+	}
+
+	async deleteScheduleMessage(id: string) {
+		this.schedulerRegistry.deleteCronJob(id);
 	}
 }

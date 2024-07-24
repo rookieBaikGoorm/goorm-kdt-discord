@@ -27,7 +27,6 @@ export class DiscordCommandService {
 
 	async registerGuildCommand(command: SlashCommand) {
 		const discordRestClient = this.discordClientService.getRestClient();
-		console.log(command.builder.toJSON().options[0]);
 		await discordRestClient.put(
 			Routes.applicationGuildCommands(this.APPLICATION_ID, this.GUILD_ID),
 			{ body: [command.builder.toJSON()] },
