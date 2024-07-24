@@ -10,6 +10,7 @@ import { Command } from '#/command/decorators/discord-command';
 import type { SlashCommand } from '#/common/types/discord-command';
 import { ScheduledMessageRepository } from '#/databases/repository/scheduled-message.repository';
 import { generateSuccessScheduleMessageEmbed } from '#/messages/embed/schedule-message';
+import { CommandHandler } from '../decorators/discord-command-handler';
 
 @Command()
 export class ScheduleCommand implements SlashCommand {
@@ -60,6 +61,8 @@ export class ScheduleCommand implements SlashCommand {
 						.setRequired(true),
 				),
 		);
+
+	@CommandHandler()
 	async handler(client: Client, interaction: ChatInputCommandInteraction) {
 		const subCommand = interaction.options.getSubcommand();
 		switch (subCommand) {

@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { DiscordCommandModule } from '#/command/discord-command.module';
 import { DatabasesModule } from '#/databases/databases.module';
 import { DiscordModule } from '#/discord/discord.module';
+import { ExploreModule } from '#/explore/explore.module';
 
 @Module({
 	imports: [
@@ -15,8 +16,8 @@ import { DiscordModule } from '#/discord/discord.module';
 		DatabasesModule,
 		DiscordModule.forRootAsync(),
 		DiscordCommandModule,
+		ExploreModule,
 		ScheduleModule.forRoot(),
-		// DatabasesModule,
 	],
 	providers: [Logger],
 })

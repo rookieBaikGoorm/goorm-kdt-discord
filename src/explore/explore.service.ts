@@ -2,12 +2,17 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { DiscoveryService, MetadataScanner } from '@nestjs/core';
 import type { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
+import { DiscordCommandExplorerService } from '#/command/command-explorer.service';
+
 @Injectable()
-export class ExplorerService implements OnModuleInit {
+export class ExploreService implements OnModuleInit {
 	constructor(
 		private readonly discoveryService: DiscoveryService,
+		private readonly discordCommandExplorerService: DiscordCommandExplorerService,
 		private readonly metadataScanner: MetadataScanner,
 	) {}
+
+	private classExploreService = [this.discordCommandExplorerService];
 
 	async onModuleInit(): Promise<void> {
 		const providers = this.discoveryService.getProviders();
@@ -15,19 +20,23 @@ export class ExplorerService implements OnModuleInit {
 		await this.exploreDecorators([...providers, ...controllers]);
 	}
 
+	private isObject(instance: unknown) {
+		return typeof instance === 'object'
+			? instance !== null
+			: typeof instance === 'function';
+	}
+
 	private async exploreDecorators(instances: InstanceWrapper[]) {
 		instances
 			.filter((wrapper) => wrapper.isDependencyTreeStatic())
 			.filter(
-				({ instance }) => instance && Object.getPrototypeOf(instance),
+				({ instance }: InstanceWrapper) =>
+					instance && this.isObject(instance),
 			)
 			.forEach(({ instance }) => {
-				const methodNames = this.scanMetadata(instance);
-				console.log(methodNames);
+				this.classExploreService.map((classExploreService) =>
+					classExploreService.explore(instance),
+				);
 			});
-	}
-
-	private scanMetadata(instance: InstanceType<any>) {
-		return this.metadataScanner.getAllMethodNames(instance);
 	}
 }

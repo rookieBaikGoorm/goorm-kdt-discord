@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 
-const COMMAND_DECORATOR = Symbol('DISCORD_COMMAND_DECORATOR');
+import { COMMAND_DECORATOR } from '../constants';
 
 export function Command(): ClassDecorator {
+	// eslint-disable-next-line @typescript-eslint/ban-types
 	return <TFunction extends Function>(
 		target: TFunction,
 	): TFunction | void => {
