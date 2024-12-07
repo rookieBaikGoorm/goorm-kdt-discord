@@ -1,4 +1,6 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+	"display": "DiscordBot",
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
@@ -6,25 +8,16 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2021",
+    "target": "ES2022",
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
+    "strict": true,
     "skipLibCheck": true,
-    "strictNullChecks": false,
-    "noImplicitAny": false,
     "strictBindCallApply": false,
-    "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false,
     "baseUrl": "./",
     "paths": {
       "#/*": ["src/*"],
-      "#apis/*": ["src/common/apis/*"],
-      "#configs/*": ["src/common/configs/*"],
-      "#databases/*": ["src/databases/*"],
-      "#exceptions/*": ["src/common/exceptions/*"],
-      "#middlewares/*": ["src/common/middlewares/*"],
-      "#utils/*": ["src/common/utils/*"]
     },
   }
 }
